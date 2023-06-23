@@ -1,25 +1,28 @@
-import React from 'react';
-import {  Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import logo from '../../assets/logo.png';
 import DefaultButton from '../../components/DefaultButton';
 import { useNavigation } from '@react-navigation/native';
-import { StackTypes } from '../../routes/stack';
+import { StackTypes } from '../../routes/stackNavigation';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AccountsContext } from '../../services/AccountsContext';
 
-function Index(): JSX.Element {
+function Index(children: any): JSX.Element {
 
   const navigation = useNavigation<StackTypes>();
-
   return (
-    <View style={styles.content}>
-      <Image style={styles.logoImage} source={logo} />
-      <View style={styles.action}>
-        <Text style={styles.title}>Bem-vindo a RubBank!</Text>
-        <Text style={styles.subtitle}>Sua conta digital, sem burocracia.</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <DefaultButton color='#6B7AE5' text='COMEÇAR'/>
-        </TouchableOpacity>
+    <SafeAreaView style={{flex: 1}}>
+      <View style={styles.content}>
+        <Image style={styles.logoImage} source={logo} />
+        <View style={styles.action}>
+          <Text style={styles.title}>Bem-vindo a RubBank!</Text>
+          <Text style={styles.subtitle}>Sua conta digital, sem burocracia.</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <DefaultButton color='#6B7AE5' text='COMEÇAR' />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -57,7 +60,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     bottom: 60
   }
-  
+
 });
 
 export default Index;

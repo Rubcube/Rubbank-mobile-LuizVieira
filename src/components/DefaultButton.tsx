@@ -15,6 +15,7 @@ const CustomButton = styled(View)<Props>`
     border-radius: 25px;
     align-items: center;
     justify-content: center;
+    align-self: stretch;
 `;
 
 const BtnText = styled(Text)`
