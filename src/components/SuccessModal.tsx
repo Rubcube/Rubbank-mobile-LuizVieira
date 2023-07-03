@@ -22,6 +22,7 @@ const SuccessTitle = styled(Text)`
     font-weight: 700;
     font-size: 20px;
     color: #383838;
+    text-align: center;
 `;
 
 const SuccessMsg = styled(Text)`
@@ -29,6 +30,7 @@ const SuccessMsg = styled(Text)`
     font-weight: 400;
     font-size: 16px;
     color: #383838;
+    text-align: center;
 `;
 
 const SuccessButton = styled(TouchableOpacity)`

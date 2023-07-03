@@ -33,3 +33,68 @@ export const validateCpf = (cpf: string) => {
 
     return true;
 }
+
+export const nameValidator = (name: string): string => {
+    if (name === "") return 'Campo obrigatório';
+    else if (!regex.fullName.test(name)) return 'Digite seu nome completo';
+    else return '';
+}
+
+export const emailValidator = (email: string) => {
+    if (email === "") return 'Campo obrigatório';
+    else if (!regex.email.test(email)) return 'Digite um email válido';
+    else return '';
+}
+
+export const phoneValidator = (phone: string) => {
+    if (phone === "") return 'Campo obrigatório';
+    else if (!regex.phone.test(phone)) return 'Digite um telefone válido';
+    else return '';
+}
+
+export const cpfValidator = (cpf: string) => {
+    if (!cpf) return 'Campo obrigatório';
+    else if (!validateCpf(cpf)) return 'Digite um cpf válido';
+    else return '';
+}
+
+export const birthValidator = (data: string) => {
+    return '';
+}
+
+export const streetValidator = (street: string) => {
+    if (street === "") return "Campo obrigatório";
+    else return '';
+}
+
+export const numberValidator = (number: string) => {
+    if (number === "") return "Campo obrigatório";
+    else return "";
+}
+
+export const neighborhoodValidator = (neighborhood: string) => {
+    if (neighborhood === "") return "Campo obrigatório";
+    else return "";
+}
+
+export const cityValidator = (city: string) => {
+    if (city === "") return "Campo obrigatório";
+    else return "";
+}
+
+export const stateValidator = (state: string) => {
+    if (state === "") return "Campo obrigatório";
+    else return '';
+}
+
+export const passwordValidator = (password: string) => {
+    if(password === "") return "Campo Obrigatório";
+    else if (!regex.password.test(password)) return "Digite uma senha válida (verifique as recomendações)";
+    else return '';
+}
+
+export const transactionPasswordValidator = (password: string) => {
+    if(password === "") return "Campo Obrigatório";
+    else if (!regex.transactionPassword.test(password)) return "Digite uma senha válida (verifique as recomendações)";
+    else return '';
+}

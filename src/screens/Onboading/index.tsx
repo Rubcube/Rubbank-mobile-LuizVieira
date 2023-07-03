@@ -1,21 +1,31 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputField from "../../components/InputField";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import { useContext, useEffect, useState } from "react";
 import DefaultButton from "../../components/DefaultButton";
 import { maskCpf, maskData, maskPhone } from "../../utils/masks";
-import { regex } from "../../utils/consts";
-import { validateCpf } from "../../services/validateFields";
 import { OnboadingContext } from "../../services/OnboardingContext";
 import { useNavigation } from "@react-navigation/native";
 import { StackOnboardingTypes } from "../../routes/stackOnboarding";
+import { birthValidator, cpfValidator, emailValidator, nameValidator, phoneValidator } from "../../services/validateFields";
+import { verifyExistsCpf, verifyExistsEmail } from "./services/onboardingApi.";
+import ErrorModal from "../../components/ErrorModal";
 
 const IndexOnboarding = () => {
-    const { register, setValue, handleSubmit } = useForm();
+    const { register, setValue, handleSubmit, watch } = useForm();
     const [onboarding, setOnboarding] = useContext(OnboadingContext);
     const navigation = useNavigation<StackOnboardingTypes>();
+
     const [isFormValid, setIsFormValid] = useState(false);
+
+    const [errorMsg, setErrorMsg] = useState({
+        fullName: '',
+        cpf: '',
+        email: '',
+        phone: '',
+        birth: ''
+    });
 
     useEffect(() => {
         register('fullName')
@@ -25,90 +35,47 @@ const IndexOnboarding = () => {
         register('birth')
     }, [register]);
 
-    const [fieldIsInvalid, setFieldIsInvalid] = useState({
-        name: {
-            status: false,
-            msg: ''
-        },
-        email: {
-            status: false,
-            msg: ''
-        },
-        phone: {
-            status: false,
-            msg: ''
-        },
-        cpf: {
-            status: false,
-            msg: ''
-        },
-        birth: {
-            status: false,
-            msg: ''
+    useEffect(() => {
+        if (watch('fullName') && watch('email') && watch('phone') && watch('cpf') &&
+            errorMsg.fullName === '' &&
+            errorMsg.cpf === '' &&
+            errorMsg.email === '' &&
+            errorMsg.phone === '' &&
+            errorMsg.birth === '') {
+            setIsFormValid(true);
+        } else {
+            setIsFormValid(false)
         }
-    });
+    }, [errorMsg])
 
-    const nameValidator = (data: any) => {
-        if (!data.fullName) setFieldIsInvalid({ ...fieldIsInvalid, name: { status: true, msg: 'Campo obrigatório' } });
-        else if (!regex.fullName.test(data.fullName)) setFieldIsInvalid({ ...fieldIsInvalid, name: { status: true, msg: 'Digite seu nome completo' } });
-        else setFieldIsInvalid({ ...fieldIsInvalid, name: { status: false, msg: '' } });
+    const validationMap = (field: string) => {
+        switch (field) {
+            case 'fullName':
+                setErrorMsg({ ...errorMsg, fullName: nameValidator(watch('fullName')) });
+                break;
+            case 'email':
+                setErrorMsg({ ...errorMsg, email: emailValidator(watch('email')) });
+                break;
+            case 'phone':
+                setErrorMsg({ ...errorMsg, phone: phoneValidator(watch('phone')) });
+                break;
+            case 'cpf':
+                setErrorMsg({ ...errorMsg, cpf: cpfValidator(watch('cpf')) });
+                break;
+            case 'birth':
+                setErrorMsg({ ...errorMsg, birth: birthValidator(watch('birth')) });
+                break;
+            default:
+                break;
+        }
     }
 
-    const emailValidator = (data: any) => {
-        if (!data.email) setFieldIsInvalid({ ...fieldIsInvalid, email: { status: true, msg: 'Campo obrigatório' } });
-        else if (!regex.email.test(data.email)) setFieldIsInvalid({ ...fieldIsInvalid, email: { status: true, msg: 'Digite um email válido' } });
-        else setFieldIsInvalid({ ...fieldIsInvalid, email: { status: false, msg: '' } });
-    }
+    const onSubmit = async (data: FieldValues) => {
+        const existsCpf = await verifyExistsCpf(data.cpf);
+        const existsEmail = await verifyExistsEmail(data.email);
 
-    const phoneValidator = (data: any) => {
-        if (!data.phone) setFieldIsInvalid({ ...fieldIsInvalid, phone: { status: true, msg: 'Campo obrigatório' } });
-        else if (!regex.phone.test(data.phone)) setFieldIsInvalid({ ...fieldIsInvalid, phone: { status: true, msg: 'Digite um telefone válido' } });
-        else setFieldIsInvalid({ ...fieldIsInvalid, phone: { status: false, msg: '' } });
-    }
+        if (!existsCpf && !existsEmail) {
 
-    const cpfValidator = (data: any) => {
-        if (!data.cpf) setFieldIsInvalid({ ...fieldIsInvalid, cpf: { status: true, msg: 'Campo obrigatório' } });
-        else if (!validateCpf(data.cpf)) setFieldIsInvalid({ ...fieldIsInvalid, cpf: { status: true, msg: 'Digite um cpf válido' } });
-        else setFieldIsInvalid({ ...fieldIsInvalid, cpf: { status: false, msg: '' } });
-    }
-
-    const isAllValid = () => {
-        return (
-            !fieldIsInvalid.name.status &&
-            !fieldIsInvalid.email.status &&
-            !fieldIsInvalid.phone.status &&
-            !fieldIsInvalid.cpf.status &&
-            !fieldIsInvalid.birth.status
-        );
-    }
-
-    const onSubmit = (data: any) => {
-
-        setFieldIsInvalid({
-            name: {
-                status: !data.fullName,
-                msg: 'Campo obrigatório'
-            },
-            email: {
-                status: !data.email,
-                msg: 'Campo obrigatório'
-            },
-            cpf: {
-                status: !data.cpf,
-                msg: 'Campo obrigatório'
-            },
-            phone: {
-                status: !data.phone,
-                msg: 'Campo obrigatório'
-            },
-            birth: {
-                status: false,
-                msg: ''
-            }
-        })
-
-        setIsFormValid(isAllValid());
-        if (isFormValid) {
             setOnboarding({
                 ...onboarding,
                 progress: 0.4,
@@ -122,43 +89,49 @@ const IndexOnboarding = () => {
                 }
             });
             navigation.navigate('CepScreen');
+        } else {
+            setErrVisibility(true);
         }
     }
 
-
+    const [errVisibility, setErrVisibility] = useState(false);
     return (
         <SafeAreaView style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
+            <ErrorModal
+                visibility={errVisibility}
+                errorMsg={"Cpf ou email ja cadastrado, por favor faça seu login ou entre em contato com nosso suporte"}
+                setVisibility={() => {setErrVisibility(!errVisibility)}} />
             <ScrollView>
                 <View style={{ padding: 36, paddingTop: 20, gap: 20 }}>
                     <Text style={{ fontSize: 24, fontWeight: '400', textAlign: 'center' }}>Preencha abaixo com seus dados pessoais.</Text>
                     <InputField
                         fieldName="fullName"
-                        isRequired={fieldIsInvalid.name.status}
-                        requireMsg={fieldIsInvalid.name.msg}
+                        isRequired={errorMsg.fullName !== ''}
+                        requireMsg={errorMsg.fullName}
                         keyboardType="default"
                         label="Nome Completo*"
                         placeholder="Insira seu nome completo"
                         placeholderTextColor={'#AAABAB'}
                         secureTextEntry={false}
                         setValue={setValue}
-                        validationFunction={handleSubmit(nameValidator)}
+                        validationFunction={() => validationMap('fullName')}
                     />
                     <InputField
                         fieldName="email"
-                        isRequired={fieldIsInvalid.email.status}
-                        requireMsg={fieldIsInvalid.email.msg}
+                        isRequired={errorMsg.email !== ''}
+                        requireMsg={errorMsg.email}
                         keyboardType="default"
                         label="E-mail*"
                         placeholder="Insira seu email"
                         placeholderTextColor={'#AAABAB'}
                         secureTextEntry={false}
                         setValue={setValue}
-                        validationFunction={handleSubmit(emailValidator)}
+                        validationFunction={() => validationMap('email')}
                     />
                     <InputField
                         fieldName="phone"
-                        isRequired={fieldIsInvalid.phone.status}
-                        requireMsg={fieldIsInvalid.phone.msg}
+                        isRequired={errorMsg.phone !== ''}
+                        requireMsg={errorMsg.phone}
                         keyboardType="default"
                         label="Telefone*"
                         placeholder="Insira seu telefone"
@@ -167,12 +140,12 @@ const IndexOnboarding = () => {
                         setValue={setValue}
                         mask={maskPhone}
                         maxLength={15}
-                        validationFunction={handleSubmit(phoneValidator)}
+                        validationFunction={() => validationMap('phone')}
                     />
                     <InputField
                         fieldName="cpf"
-                        isRequired={fieldIsInvalid.cpf.status}
-                        requireMsg={fieldIsInvalid.cpf.msg}
+                        isRequired={errorMsg.cpf !== ''}
+                        requireMsg={errorMsg.cpf}
                         keyboardType="default"
                         label="CPF*"
                         placeholder="Insira seu cpf"
@@ -181,12 +154,12 @@ const IndexOnboarding = () => {
                         setValue={setValue}
                         mask={maskCpf}
                         maxLength={14}
-                        validationFunction={handleSubmit(cpfValidator)}
+                        validationFunction={() => validationMap('cpf')}
                     />
                     <InputField
                         fieldName="birth"
-                        isRequired={fieldIsInvalid.birth.status}
-                        requireMsg={fieldIsInvalid.birth.msg}
+                        isRequired={errorMsg.birth !== ''}
+                        requireMsg={errorMsg.birth}
                         keyboardType="default"
                         label="Data de nascimento"
                         placeholder="Insira sua data de nascimento"
@@ -195,9 +168,10 @@ const IndexOnboarding = () => {
                         setValue={setValue}
                         mask={maskData}
                         maxLength={10}
+                        validationFunction={() => validationMap('birth')}
                     />
-                    <TouchableOpacity style={{ alignSelf: 'center', marginTop: 20 }} onPress={handleSubmit(onSubmit)}>
-                        <DefaultButton color={"#1D1C3E"} text="CONFIRMAR" />
+                    <TouchableOpacity style={{ alignSelf: 'center', marginTop: 20 }} disabled={!isFormValid} onPress={handleSubmit(onSubmit)}>
+                        <DefaultButton color={isFormValid ? "#1D1C3E" : "#CCCCCC"} text="CONFIRMAR" />
                     </TouchableOpacity>
                 </View>
             </ScrollView>

@@ -7,6 +7,11 @@ export interface responseLoginDTO {
     accounts?: AccountsDTO[]
 }
 
+export interface responseOnboardingDTO {
+    status: number
+    error?: error[]
+}
+
 export interface responseViaCepDTO {
     status: number
     cep?: string
@@ -16,6 +21,11 @@ export interface responseViaCepDTO {
     localidade?: string
     uf?: string
     erro?: boolean
+}
+
+export interface ErrorDTO {
+    status: number
+    error: error[]
 }
 
 interface error{

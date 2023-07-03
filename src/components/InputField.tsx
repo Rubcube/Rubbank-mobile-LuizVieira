@@ -1,7 +1,7 @@
 import { FieldValues, UseFormSetValue } from "react-hook-form";
 import { KeyboardTypeOptions, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AppIcon from 'react-native-vector-icons/Ionicons';
 
 interface Props {
@@ -18,6 +18,8 @@ interface Props {
     isRequired: boolean
     requireMsg?: string
     alignment?: "center" | "left" | "right" | "justify"
+    value?: string
+    editable?: boolean
 }
 
 interface InputStyleProps {
@@ -48,14 +50,20 @@ const RequireMsg = styled(Text) <InputStyleProps>`
 
 const InputField = (props: Props) => {
 
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState(props.value? props.value: '');
     const [isHidden, setIsHidden] = useState(props.secureTextEntry);
 
     const handleChange = (text: string) => {
         if (props.mask) text = props.mask(text);
         props.setValue(props.fieldName, text)
         setValue(text);
+        props.validationFunction? props.validationFunction(): '';
     }
+
+    useEffect(() => {
+        setValue(props.value? props.value: '');
+        props.setValue(props.fieldName, value)
+    },[props.value])
 
     return (
         <View style={{gap: 5}}>
@@ -64,13 +72,14 @@ const InputField = (props: Props) => {
                 <TextInput
                     keyboardType={props.keyboardType}
                     placeholder={props.placeholder}
-                    placeholderTextColor={props.placeholderTextColor}
+                    placeholderTextColor={props.placeholderTextColor === ""? '#AAABAB': props.placeholderTextColor}
                     secureTextEntry={isHidden}
                     onChangeText={text => handleChange(text)}
                     maxLength={props.maxLength}
                     value={value}
                     onBlur={props.validationFunction}
                     style={{ flex: 1, textAlign: props.alignment? props.alignment: 'left' }}
+                    editable={props.editable !== undefined? props.editable: true}
                 />
                 {props.secureTextEntry &&
                     <TouchableOpacity onPress={() => { setIsHidden(!isHidden) }}>

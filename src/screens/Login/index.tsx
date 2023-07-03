@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import logo from '../../assets/logo.png';
 import DefaultButton from '../../components/DefaultButton';
 import InputField from '../../components/InputField';
 import ErrorModal from '../../components/ErrorModal';
-import SuccessModal from '../../components/SuccessModal';
 import login from './services/authRequest';
 
 import { validateCpf } from '../../services/validateFields';
@@ -17,11 +15,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LoadingScreen } from '../../components/LoadingScreen';
 import { StackTypes } from '../../routes/stackNavigation';
 import { AccountsContext } from '../../services/AccountsContext';
+import { AuthContext } from '../../services/AuthContext';
 
 function Login(): JSX.Element {
   const navigation = useNavigation<StackTypes>();
 
   const [accounts, setAccounts] = useContext(AccountsContext);
+  const [auth, setAuth] = useContext(AuthContext);
 
   const { register, setValue, handleSubmit } = useForm();
 
@@ -88,7 +88,7 @@ function Login(): JSX.Element {
     if (res.status === 200) {
       setLoadingVisibility(false);
 
-      AsyncStorage.setItem('JWTToken', res.token ? res.token : '');
+      setAuth(res.token ? res.token : '');
 
       if(res.accounts) setAccounts(res.accounts);
       navigation.reset({

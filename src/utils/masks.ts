@@ -21,3 +21,9 @@ export const maskCep = (value: string) => {
     value = value.replace(/^(\d{5})(\d{3})/,"$1-$2");
     return value;
 }
+
+export const maskTransactionPassword = (value: string) => {
+    value = value.replace(/\D/g, "");
+    value = value.replace(/^(\d{4})/,"$1");
+    return value;
+}

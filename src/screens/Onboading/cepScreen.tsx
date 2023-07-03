@@ -5,7 +5,7 @@ import InputField from "../../components/InputField";
 import { useForm } from "react-hook-form";
 import Feather from 'react-native-vector-icons/Feather';
 import DefaultButton from "../../components/DefaultButton";
-import getAddress from "./services/viaCepApi";
+import getAddress from "../../services/viaCepApi";
 import { responseViaCepDTO } from "../../types/responseDTO";
 import { maskCep } from "../../utils/masks";
 import { LoadingScreen } from "../../components/LoadingScreen";
@@ -25,6 +25,10 @@ const CepScreen = () => {
     }, [register]);
 
     const onSubmit = async (data: any) => {
+        if(!data.cep){
+            setIsInvalidCep(true);
+            return;
+        }
         data.cep = data.cep.replace('-','');    
         setLoandingVisibility(true);
         const response: responseViaCepDTO | undefined = await getAddress(data.cep);
@@ -67,7 +71,6 @@ const CepScreen = () => {
                     secureTextEntry={false}
                     setValue={setValue}
                     alignment="center"
-                    validationFunction={handleSubmit(onSubmit)}
                     requireMsg="Insira um CEP válido"
                     maxLength={9}
                     mask={maskCep}

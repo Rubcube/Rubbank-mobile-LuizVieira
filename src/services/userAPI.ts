@@ -1,10 +1,6 @@
 import axios from "axios";
-import { responseLoginDTO } from "../../../types/responseDTO";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
-
-const getBalance = async (account: string) => {
+const getBalance = async (account: string, JWTToken: string) => {
     let res: {
         status: number,
         balance: number
@@ -12,7 +8,6 @@ const getBalance = async (account: string) => {
         status: 0,
         balance: -1
     };
-    const JWTToken = await AsyncStorage.getItem('JWTToken');
     const axiosInstance = axios.create({
         baseURL: 'http://10.0.2.2:3344/',
         headers: { token: JWTToken }

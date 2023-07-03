@@ -4,7 +4,7 @@ export interface OnboardingDTO {
     fullName: string
     phone: string
     email: string
-    birth: string
+    birth?: string
 
     userAuth: {
         cpf: string
@@ -16,7 +16,7 @@ export interface OnboardingDTO {
         type?: string
         street: string
         number: string
-        complement: string
+        complement?: string
         neighborhood: string
         city: string
         state: string

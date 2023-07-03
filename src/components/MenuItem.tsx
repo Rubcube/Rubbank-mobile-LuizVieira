@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Image, ImageSourcePropType, Text, View } from "react-native";
 import { styled } from "styled-components";
 
 const Card = styled(View)`
@@ -6,12 +6,20 @@ const Card = styled(View)`
     height: 90px;
     background-color: #FFFFFF;
     border-radius: 8px;
+    padding: 15px;
+    justify-content: space-between;
 `;
 
-const MenuItem = () => {
+interface Props {
+    image: ImageSourcePropType,
+    title: string
+}
+
+const MenuItem = (props: Props) => {
     return (
-        <Card style={{ elevation: 7 }}>
-            
+        <Card style={{ elevation: 2 }}>
+            <Image source={props.image} />
+            <Text>{props.title}</Text>
         </Card>
     );
 }

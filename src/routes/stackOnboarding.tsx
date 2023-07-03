@@ -11,6 +11,8 @@ import { OnboardingDTO } from '../types/OnboardingDTO';
 import { Text, View } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import AddressScreen from '../screens/Onboading/addressScreen';
+import AppPassScreen from '../screens/Onboading/appPassScreen';
+import TransactionPassScreen from '../screens/Onboading/transactionPassScreen';
 
 const Drawer = createNativeStackNavigator();
 
@@ -18,6 +20,8 @@ type StackOboading = {
     IndexOnboading: undefined;
     CepScreen: undefined;
     AddressScreen: undefined;
+    AppPassScreen: undefined;
+    TransactionPassScreen: undefined;
 }
 
 export type StackOnboardingTypes = NativeStackNavigationProp<StackOboading>;
@@ -33,6 +37,8 @@ export default function StackOnboardingComponent(): JSX.Element {
                 <Drawer.Screen name="IndexOnboading" component={IndexOnboarding} options={{ animation: 'slide_from_left' }} />
                 <Drawer.Screen name="CepScreen" component={CepScreen} options={{ animation: 'slide_from_right' }} />
                 <Drawer.Screen name="AddressScreen" component={AddressScreen} options={{ animation: 'slide_from_right' }} />
+                <Drawer.Screen name="AppPassScreen" component={AppPassScreen} options={{ animation: 'slide_from_right' }} />
+                <Drawer.Screen name="TransactionPassScreen" component={TransactionPassScreen} options={{ animation: 'slide_from_right' }} />
             </Drawer.Navigator>
         </OnboadingContext.Provider>
     );
