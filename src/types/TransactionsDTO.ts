@@ -4,6 +4,9 @@ export interface Filters {
     accountId: string
     schedule?: boolean
     page?: number
+    scheduleStartDate?: Date
+    scheduleEndDate?: Date
+    order?: string
 }
 
 export interface TransfersResponseDTO {

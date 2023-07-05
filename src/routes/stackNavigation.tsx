@@ -16,6 +16,8 @@ import StackPerfilComponent from './stackPerfil';
 import { AuthContext } from '../services/AuthContext';
 import Extrato from '../screens/Extrato/Index';
 import DetailedTransfer from '../screens/Extrato/detailedTransfer';
+import InitialStepTransfer from '../screens/Transfer';
+import StackTransferComponent from './stackTransfer';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +29,7 @@ type StackNavigation = {
   HomeScreen: undefined;
   Perfil: undefined;
   Extrato: undefined;
+  Transfer: undefined;
   DetailedTransfer: {id: string};
 }
 
@@ -52,6 +55,7 @@ export default function StackComponent(): JSX.Element {
               <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ animation: 'simple_push' }} />
               <Stack.Screen name="Perfil" component={StackPerfilComponent} options={{ animation: 'default' }} />
               <Stack.Screen name='Extrato' component={Extrato} options={{ animation: 'default' }} />
+              <Stack.Screen name='Transfer' component={StackTransferComponent} options={{ animation: 'default' }} />
               <Stack.Screen name='DetailedTransfer' component={DetailedTransfer} options={{ animation: 'default' }} />
             </Stack.Navigator>
           </NavigationContainer>

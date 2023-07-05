@@ -44,10 +44,11 @@ const Transactions = ({ params, }: { params: Params }) => {
 
         const response = await getTransactions({
             accountId: filters.accountId,
-            endDate: filters.endDate,
-            startDate: filters.startDate,
+            endDate: params.schedule? filters.scheduleEndDate: filters.endDate,
+            startDate: params.schedule? filters.scheduleStartDate: filters.startDate,
             page: 1,
-            schedule: params.schedule
+            schedule: params.schedule,
+            order: filters.order
         }, params.type, auth);
         if (response) {
             if (response.status === 200) {
@@ -63,10 +64,11 @@ const Transactions = ({ params, }: { params: Params }) => {
 
         const response = await getTransactions({
             accountId: filters.accountId,
-            endDate: filters.endDate,
-            startDate: filters.startDate,
+            endDate: params.schedule? filters.scheduleEndDate: filters.endDate,
+            startDate: params.schedule? filters.scheduleStartDate: filters.startDate,
             page: page + 1,
-            schedule: params.schedule
+            schedule: params.schedule,
+            order: filters.order
         }, params.type, auth);
         if (response) {
             if (response.status === 200) {

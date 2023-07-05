@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Background from '../../components/Background';
 import Container from '../../components/Container';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import wave from '../../assets/wave.png'
 import DefaultHeader from '../../components/DefaultHeader';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -54,45 +54,57 @@ const DetailedTransfer = () => {
                 <ImageBackground source={wave} resizeMode='contain' style={{ width: '100%', height: 160 }}>
                     <DefaultHeader title='Transferência' backFunction={() => navigation.goBack()} />
                 </ImageBackground>
-                <Container style={{ gap: 25, marginTop: -80 }}>
-                    <View>
-                        <Text style={styles.subTitle}>Enviado de</Text>
-                        <Text style={styles.title}>{transfer?.account.full_name}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>CPF</Text>
-                        <Text style={styles.title}>{maskCpf(transfer?.account.cpf || '')}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>Nome</Text>
-                        <Text style={styles.title}>{transfer?.account_receiver.full_name}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>Agência</Text>
-                        <Text style={styles.title}>{transfer?.account_receiver.agency}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>Conta</Text>
-                        <Text style={styles.title}>{transfer?.account_receiver.account_number}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>Data do pagamento</Text>
-                        <Text style={styles.title}>{DateTime.fromISO(transfer?.created_at.toString()||'').setLocale('pt-br').toLocaleString(DateTime.DATETIME_MED)}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>Status</Text>
-                        <Text style={styles.title}>{mapStatus()}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.subTitle}>Valor do Pagamento</Text>
-                        <View style={styles.valueBox}>
-                            <Text style={{ fontSize: 14 }}>RC</Text>
-                            <Text style={styles.value}>{transfer?.value ? (transfer.value / 100).toFixed(2) : 0.00}</Text>
+                <Container style={{ marginTop: -80 }}>
+                    <ScrollView>
+                        <View style={{ gap: 20 }}>
+                            <View>
+                                <Text style={styles.subTitle}>Origem: </Text>
+                                <Text style={styles.title}>{transfer?.account.full_name}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>CPF</Text>
+                                <Text style={styles.title}>{maskCpf(transfer?.account.cpf || '')}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>Conta</Text>
+                                <Text style={styles.title}>{transfer?.account.agency}-{transfer?.account.account_number}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>Destino:</Text>
+                                <Text style={styles.title}>{transfer?.account_receiver.full_name}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>CPF</Text>
+                                <Text style={styles.title}>{maskCpf(transfer?.account_receiver.cpf || '')}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>Conta</Text>
+                                <Text style={styles.title}>{transfer?.account_receiver.agency}-{transfer?.account_receiver.account_number}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>Data do pagamento</Text>
+                                <Text style={styles.title}>{
+                                    transfer?.transferStatus === 'INPROGRESS' ?
+                                        DateTime.fromISO(transfer?.schedule_date.toString() || '').setLocale('pt-br').toLocaleString(DateTime.DATE_FULL) :
+                                        DateTime.fromISO(transfer?.created_at.toString() || '').setLocale('pt-br').toLocaleString(DateTime.DATETIME_FULL)
+                                }</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>Status</Text>
+                                <Text style={styles.title}>{mapStatus()}</Text>
+                            </View>
+                            <View>
+                                <Text style={styles.subTitle}>Valor do Pagamento</Text>
+                                <View style={styles.valueBox}>
+                                    <Text style={{ fontSize: 14 }}>RC</Text>
+                                    <Text style={styles.value}>{transfer?.value ? (transfer.value / 100).toFixed(2) : 0.00}</Text>
+                                </View>
+                            </View>
+                            <TouchableOpacity style={styles.button} onPress={() => { }}>
+                                <Text style={{ fontSize: 16, color: '#383838', fontWeight: '500' }}>COMPARTILHAR DADOS</Text>
+                            </TouchableOpacity>
                         </View>
-                    </View>
-                    <TouchableOpacity style={styles.button} onPress={() => { }}>
-                        <Text style={{ fontSize: 16, color: '#383838', fontWeight: '500' }}>COMPARTILHAR DADOS</Text>
-                    </TouchableOpacity>
+                    </ScrollView>
                 </Container>
             </Background>
         </SafeAreaView>
@@ -130,7 +142,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 1,
         borderRadius: 30,
-        marginTop: 20
+        marginTop: 0
     }
 })
 

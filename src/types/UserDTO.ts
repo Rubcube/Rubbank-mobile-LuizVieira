@@ -18,3 +18,10 @@ interface AddressDTO {
     city: string
     state: string
 }
+
+export interface UserResumeInfoDTO {
+    fullName: string
+    cpf: string,
+    email: string
+    phone: string
+}

@@ -69,7 +69,9 @@ const HomeScreen = () => {
                     </ImageBackground>
                     <Container style={{ gap: 20 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <MenuItem image={transferIcon} title='Transferir' />
+                            <TouchableOpacity onPress={() => navigation.navigate('Transfer')}>
+                                <MenuItem image={transferIcon} title='Transferir' />
+                            </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate('Extrato')}>
                                 <MenuItem image={extratoIcon} title='Extrato' />
                             </TouchableOpacity>
