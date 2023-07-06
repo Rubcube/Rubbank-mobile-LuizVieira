@@ -41,7 +41,7 @@ const Label = styled(Text) <InputStyleProps>`
     color: ${props => props.isRequired ? "#b60000" : "#383838"};
 `;
 
-const RequireMsg = styled(Text) <InputStyleProps>`
+export const RequireMsg = styled(Text) <InputStyleProps>`
     display: ${props => props.isRequired ? 'flex' : 'none'};
     margin-top: 10px;
     font-size: 12px;

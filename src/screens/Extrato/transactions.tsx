@@ -107,7 +107,7 @@ const Transactions = ({ params, }: { params: Params }) => {
                             <>
                                 {isOver && index === groups.length - 1 ?
                                     <>
-                                        <Text style={{ fontSize: 16, fontWeight: '400', marginTop: 30 }}>{DateTime.fromISO(item).setLocale('pt-br').toLocaleString(DateTime.DATE_FULL)}</Text>
+                                        <Text style={{ fontSize: 16, fontWeight: '400', marginTop: 30 }}>{DateTime.fromISO(item).toUTC().setLocale('pt-BR').toLocaleString(DateTime.DATE_FULL)}</Text>
                                         <FlatList
                                             style={{ backgroundColor: '#FFFFFF' }}
                                             data={groupedData[index]}
@@ -120,7 +120,7 @@ const Transactions = ({ params, }: { params: Params }) => {
                                         </Text>
                                     </> :
                                     <>
-                                        <Text style={{ fontSize: 16, fontWeight: '400', marginTop: 30 }}>{DateTime.fromISO(item).setLocale('pt-br').toLocaleString(DateTime.DATE_FULL)}</Text>
+                                        <Text style={{ fontSize: 16, fontWeight: '400', marginTop: 30 }}>{DateTime.fromISO(item).toUTC().setLocale('pt-br').toLocaleString(DateTime.DATE_FULL)}</Text>
                                         <FlatList
                                             style={{ backgroundColor: '#FFFFFF' }}
                                             data={groupedData[index]}

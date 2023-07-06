@@ -1,22 +1,34 @@
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Background from '../../components/Background';
 import DefaultHeader from '../../components/DefaultHeader';
 import wave from '../../assets/wave.png'
 import { useContext, useEffect, useState } from 'react';
-import getBalance from '../../services/userAPI';
-import { AuthContext } from '../../services/AuthContext';
-import { ActiveAccountContext } from '../../services/ActiveAccountContext';
-import InputField from '../../components/InputField';
 import DefaultButton from '../../components/DefaultButton';
 import { StackTransferTypes } from '../../routes/stackTransfer';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
+import { regex } from '../../utils/consts';
+import { postTransfer } from './services/transferAPI';
+import { AuthContext } from '../../services/AuthContext';
+import { ActiveAccountContext } from '../../services/ActiveAccountContext';
+import WrongPassModal from './WrongPassModal';
+import { LoadingScreen } from '../../components/LoadingScreen';
+import SuccessModal from '../../components/SuccessModal';
+import { StackTypes } from '../../routes/stackNavigation';
+import { DateTime } from 'luxon';
+
+interface routeParams {
+    accountReceiver: string
+    value: number
+    scheduleDate: string
+}
 
 export default function InitialStepTransfer(): JSX.Element {
-    const navigation = useNavigation<StackTransferTypes>();
+    const navigation = useNavigation<StackTypes>();
 
-    const [enableMask, setEnableMask] = useState(true);
+    const [auth, setAuth] = useContext(AuthContext);
+    const [activeAccount, setActiveAccount] = useContext(ActiveAccountContext);
+
     const [value, setValue] = useState('');
     const ref = useBlurOnFulfill({ value, cellCount: 4 });
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -24,17 +36,70 @@ export default function InitialStepTransfer(): JSX.Element {
         setValue,
     });
 
-    const toggleMask = () => setEnableMask((f) => !f);
+    const [isFormValid, setIsFormValid] = useState(false);
 
+    const route = useRoute();
+    const transfer = route.params as routeParams;
+
+    useEffect(() => {
+        if (regex.transactionPassword.test(value)) setIsFormValid(true);
+        else setIsFormValid(false)
+    }, [value])
+
+    const onSubmit = async () => {
+        setLoadingVisibility(true);
+        const response = await postTransfer(
+            auth, 
+            activeAccount.id, 
+            transfer.accountReceiver, 
+            transfer.value, DateTime.fromFormat(transfer.scheduleDate, 'dd/MM/yyyy').toFormat('yyyy-MM-dd'),
+            value);
+        setLoadingVisibility(false);
+
+        if (response.status === 401) {
+            console.log(response);
+            setCount(parseInt(response.data));
+            setError(true);
+            setValue('');
+
+        } else if (response.status === 200) {
+            setTransferId(response.data);
+            setSuccessVisibility(true);
+        }
+    }
+
+    const [error, setError] = useState(false);
+    const [count, setCount] = useState(0);
+
+    const [successVisibility, setSuccessVisibility] = useState(false);
+    const [loadingVisibility, setLoadingVisibility] = useState(false);
+    const [transferId, setTransferId] = useState('');
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <SuccessModal
+                btnText="ENVIAR COMPROVANTE"
+                successTitle="Sua transferência foi enviada com sucesso"
+                visibility={successVisibility}
+                actionButton={() => {
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                            {name: 'Accounts'},
+                            {name: 'HomeScreen'},
+                            {name: 'DetailedTransfer', params: {id: transferId}}
+                        ]
+                    })
+                }}
+            />
+            <LoadingScreen visibility={loadingVisibility} />
+            <WrongPassModal count={count} isBlocked={count >= 3} setVisibility={() => setError(false)} visibility={error} />
             <Background>
                 <ImageBackground source={wave} resizeMode='contain' style={{ width: '100%', height: 160 }}>
                     <DefaultHeader title='Transferência' backFunction={() => navigation.goBack()} />
                 </ImageBackground>
                 <View style={styles.Container}>
                     <View>
-                        <Text style={{fontSize: 16, fontWeight: '400'}}>Confirme sua senha transacional</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '400' }}>Confirme sua senha transacional</Text>
                         <CodeField
                             ref={ref}
                             {...props}
@@ -49,7 +114,7 @@ export default function InitialStepTransfer(): JSX.Element {
                                 let textChild = null;
 
                                 if (symbol) {
-                                    textChild = enableMask ? '•' : symbol;
+                                    textChild = '•';
                                 } else if (isFocused) {
                                     textChild = <Cursor />;
                                 }
@@ -65,8 +130,8 @@ export default function InitialStepTransfer(): JSX.Element {
                             }}
                         />
                     </View>
-                    <TouchableOpacity style={{ alignSelf: 'center' }} onPress={() => navigation.navigate('TransferResume')}>
-                        <DefaultButton color='#1D1C3E' text='CONTINUAR' />
+                    <TouchableOpacity style={{ alignSelf: 'center' }} disabled={!isFormValid} onPress={onSubmit}>
+                        <DefaultButton color={isFormValid ? '#1D1C3E' : '#AAABAB'} text='CONTINUAR' />
                     </TouchableOpacity>
                 </View>
             </Background>

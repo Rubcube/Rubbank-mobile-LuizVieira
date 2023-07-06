@@ -11,7 +11,7 @@ const Drawer = createNativeStackNavigator();
 type StackTransfer = {
     TransferIndex: undefined;
     TransferResume: {account: AccountInfoDTO};
-    TransferPassword: undefined;
+    TransferPassword: {accountReceiver: string, value: number, scheduleDate: string};
 }
 
 export type StackTransferTypes = NativeStackNavigationProp<StackTransfer>;

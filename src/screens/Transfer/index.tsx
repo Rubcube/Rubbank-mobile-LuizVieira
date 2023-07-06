@@ -72,7 +72,8 @@ export default function InitialStepTransfer(): JSX.Element {
         if (response) {
             const account: AccountInfoDTO = response;
             if (account.id) {
-                navigation.navigate('TransferResume', {account: account})
+                if(account.id === activeAccount.id) setModalError('Conta inválida! não é possível fazer uma transferência com origem e destino iguais.');
+                else navigation.navigate('TransferResume', {account: account});
             } else setModalError('Conta não encontrada, por favor insira uma conta existente!');
         } else setModalError('Conta não encontrada, por favor insira uma conta existente!');
     }

@@ -12,9 +12,12 @@ import DefaultButton from '../../components/DefaultButton';
 import { TextInput } from 'react-native-paper';
 import { StackTransferTypes } from '../../routes/stackTransfer';
 import { AccountInfoDTO } from '../../types/AccountDTO';
-import { maskCpf } from '../../utils/masks';
+import { maskCpf, maskData, maskHiddenCpf } from '../../utils/masks';
 import { getUser } from './services/transferAPI';
 import { UserResumeInfoDTO } from '../../types/UserDTO';
+import { FieldValues, useForm } from 'react-hook-form';
+import InputField, { RequireMsg } from '../../components/InputField';
+import { DateTime } from 'luxon';
 
 interface Account {
     account: AccountInfoDTO
@@ -27,8 +30,17 @@ export default function TransferResume(): JSX.Element {
     const [activeAccount, setActiveAccount] = useContext(ActiveAccountContext);
     const [user, setUser] = useState<UserResumeInfoDTO>();
 
+    const { register, setValue, handleSubmit, watch } = useForm();
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [errorMsg, setErrorMsg] = useState({
+        value: '',
+        date: ''
+    })
+
+    const [field, setField] = useState('');
+
     const route = useRoute();
-    const {account} = route.params as Account;
+    const { account } = route.params as Account;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,13 +49,52 @@ export default function TransferResume(): JSX.Element {
             setBalance((valBalance / 100).toFixed(2));
 
             const userResponse = await getUser(auth);
-            if(userResponse){
+            if (userResponse) {
                 setUser(userResponse);
             }
-            
         }
         fetchData().catch(console.error)
     }, []);
+
+    useEffect(() => {
+        register('value')
+        register('date')
+
+        setValue('date', DateTime.now().toFormat('dd/MM/yyyy').toString())
+    }, [register])
+
+    useEffect(() => {
+        if (watch('value') && errorMsg.value === '' && watch('date') && errorMsg.date === '') setIsFormValid(true);
+        else setIsFormValid(false);
+    }, [errorMsg, watch('value')])
+
+    const dateValidation = (value: string) => {
+        if (value === '') {
+            setValue('date', DateTime.now().toFormat('dd/MM/yyyy').toString());
+            setErrorMsg({ ...errorMsg, date: '' });
+            return;
+        }
+
+        const date = DateTime.fromFormat(value, 'dd/MM/yyyy');
+        if (!date.isValid) setErrorMsg({ ...errorMsg, date: 'Digite uma data válida' });
+        else if (date.startOf('day') < DateTime.now().startOf('day')) setErrorMsg({ ...errorMsg, date: 'Digite uma data válida' });
+        else setErrorMsg({ ...errorMsg, date: '' });
+    }
+
+    const handleChange = (text: string) => {
+        text = text.replace(',', '.');
+
+        const value: number = parseFloat(text);
+        if (Number.isNaN(value) || value <= 0) setErrorMsg({ ...errorMsg, value: 'Digite um valor válido' })
+        else setErrorMsg({ ...errorMsg, value: '' });
+        setValue('value', text);
+        setField(text);
+    }
+
+    const onSubmit = (data: FieldValues) => {
+        navigation.navigate('TransferPassword', { accountReceiver: account.id, value: parseFloat(data.value), scheduleDate: data.date });
+    }
+
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -56,40 +107,78 @@ export default function TransferResume(): JSX.Element {
                     </View>
                 </ImageBackground>
                 <View style={styles.Container}>
-                    <ScrollView style={{flex: 1}}>
-                        <View style={{ gap: 30 }}>
+                    <ScrollView style={{ flex: 1, paddingHorizontal: 36 }}>
+                        <View style={{ gap: 25 }}>
                             <View>
-                                <Text style={styles.subTitle}>Enviado de</Text>
+                                <Text style={styles.subTitle}>Origem: </Text>
                                 <Text style={styles.title}>{user?.fullName}</Text>
                             </View>
                             <View>
                                 <Text style={styles.subTitle}>CPF</Text>
                                 <Text style={styles.title}>{maskCpf(user?.cpf || '')}</Text>
                             </View>
+                            <View style={{ flexDirection: 'row', gap: 20 }}>
+                                <View>
+                                    <Text style={styles.subTitle}>Agência</Text>
+                                    <Text style={styles.title}>{activeAccount.agency}</Text>
+                                </View>
+                                <View>
+                                    <Text style={styles.subTitle}>Conta</Text>
+                                    <Text style={styles.title}>{activeAccount.account_number}</Text>
+                                </View>
+                            </View>
                             <View>
-                                <Text style={styles.subTitle}>Recebido por</Text>
+                                <Text style={styles.subTitle}>Destino: </Text>
                                 <Text style={styles.title}>{account.user.full_name}</Text>
                             </View>
                             <View>
-                                <Text style={styles.subTitle}>Agência</Text>
-                                <Text style={styles.title}>{account.agency}</Text>
+                                <Text style={styles.subTitle}>CPF</Text>
+                                <Text style={styles.title}>{maskHiddenCpf(account.user.cpf || '')}</Text>
                             </View>
-                            <View>
-                                <Text style={styles.subTitle}>Conta</Text>
-                                <Text style={styles.title}>{account.account_number}</Text>
+                            <View style={{ flexDirection: 'row', gap: 20 }}>
+                                <View>
+                                    <Text style={styles.subTitle}>Agência</Text>
+                                    <Text style={styles.title}>{account.agency}</Text>
+                                </View>
+                                <View>
+                                    <Text style={styles.subTitle}>Conta</Text>
+                                    <Text style={styles.title}>{account.account_number}</Text>
+                                </View>
                             </View>
+                            <InputField
+                                fieldName='date'
+                                isRequired={errorMsg.date !== ''}
+                                requireMsg={errorMsg.date}
+                                keyboardType='number-pad'
+                                label='Data de transferência'
+                                placeholder={DateTime.now().toFormat('dd/MM/yyyy').toString()}
+                                placeholderTextColor=''
+                                secureTextEntry={false}
+                                setValue={setValue}
+                                mask={maskData}
+                                maxLength={10}
+                                validationFunction={() => dateValidation(watch('date'))}
+                            />
                             <View>
                                 <Text style={styles.subTitle}>Valor do Pagamento</Text>
                                 <View style={styles.valueBox}>
                                     <Text style={{ fontSize: 14 }}>RC</Text>
                                     <TextInput
                                         style={styles.value}
-                                    />  
+                                        placeholder='0.00'
+                                        placeholderTextColor={'#383838'}
+                                        keyboardType='number-pad'
+                                        onChangeText={(text) => handleChange(text)}
+                                        value={field}
+                                        activeUnderlineColor='rgba(0,0,0,0)'
+                                        underlineColor='rgba(0,0,0,0)'
+                                    />
                                 </View>
+                                <RequireMsg isRequired={errorMsg.value !== ''}>{errorMsg.value}</RequireMsg>
                             </View>
                         </View>
-                        <TouchableOpacity style={{ alignSelf: 'center', marginTop: 50 }} onPress={() => navigation.navigate('TransferPassword')}>
-                            <DefaultButton color='#1D1C3E' text='CONTINUAR' />
+                        <TouchableOpacity style={{ alignSelf: 'center', marginTop: 50 }} disabled={!isFormValid} onPress={handleSubmit(onSubmit)}>
+                            <DefaultButton color={isFormValid ? '#1D1C3E' : '#AAABAB'} text='CONTINUAR' />
                         </TouchableOpacity>
                     </ScrollView>
                 </View>
@@ -108,8 +197,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         marginTop: -30,
-        paddingBottom: 50,
-        paddingHorizontal: 36,
+        paddingBottom: 20,
         gap: 25,
     },
     title: {
@@ -126,16 +214,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
+        borderColor: '#383838',
+        borderBottomWidth: 0.5,
+        borderStyle: 'solid',
     },
     value: {
         fontSize: 48,
         fontWeight: '400',
         backgroundColor: '#FFFFFF',
-        borderColor: '#383838',
-        borderBottomWidth: 0.5,
-        borderStyle: 'solid',
         flex: 1,
-        padding: 20
+        paddingHorizontal: 5,
+        paddingVertical: 20,
     },
     button: {
         alignItems: 'center',
