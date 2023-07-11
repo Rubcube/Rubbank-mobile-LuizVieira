@@ -20,6 +20,7 @@ interface Props {
     alignment?: "center" | "left" | "right" | "justify"
     value?: string
     editable?: boolean
+    multiline?: boolean
 }
 
 interface InputStyleProps {
@@ -80,6 +81,7 @@ const InputField = (props: Props) => {
                     onBlur={props.validationFunction}
                     style={{ flex: 1, textAlign: props.alignment? props.alignment: 'left' }}
                     editable={props.editable !== undefined? props.editable: true}
+                    multiline={props.multiline}
                 />
                 {props.secureTextEntry &&
                     <TouchableOpacity onPress={() => { setIsHidden(!isHidden) }}>

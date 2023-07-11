@@ -3,6 +3,7 @@ type AccountsDTO =
     id: string;
     agency: string;
     account_number: number;
+    status: string
   }
 ;
 

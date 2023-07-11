@@ -4,7 +4,8 @@ import AccountsDTO from "../types/AccountDTO";
 const initialState: AccountsDTO = {
     account_number: -1,
     agency: '',
-    id: ''
+    id: '',
+    status: ''
 };
 
 const AccountDispatch: Dispatch<SetStateAction<AccountsDTO>> = () => {};

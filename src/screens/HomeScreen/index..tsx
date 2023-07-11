@@ -16,6 +16,8 @@ import userIcon from '../../assets/users.png'
 import { StackTypes } from '../../routes/stackNavigation';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../services/AuthContext';
+import customer from '../../assets/customer-service.png';
+import WrongPassModal from '../Transfer/WrongPassModal';
 
 const HomeScreen = () => {
     const navigation = useNavigation<StackTypes>();
@@ -41,8 +43,10 @@ const HomeScreen = () => {
         setRefreshing(false);
     }
 
+    const [error, setError] = useState(false);
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <WrongPassModal count={3} isBlocked={true} setVisibility={() => setError(false)} visibility={error} home/>
             <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} >
                 <Background>
@@ -69,16 +73,24 @@ const HomeScreen = () => {
                     </ImageBackground>
                     <Container style={{ gap: 20 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <TouchableOpacity onPress={() => navigation.navigate('Transfer')}>
+                            <TouchableOpacity style={styles.card} onPress={() => {
+                                activeAccount.status === 'ACTIVE' ?
+                                    navigation.navigate('Transfer')
+                                :
+                                    setError(true)
+                            }}>
                                 <MenuItem image={transferIcon} title='Transferir' />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('Extrato')}>
+                            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Extrato')}>
                                 <MenuItem image={extratoIcon} title='Extrato' />
                             </TouchableOpacity>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+                            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Perfil')}>
                                 <MenuItem image={userIcon} title='Perfil' />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Suport')}>
+                                <MenuItem image={customer} title='Suporte' />
                             </TouchableOpacity>
                         </View>
                     </Container>
@@ -119,6 +131,11 @@ const styles = StyleSheet.create({
     balanceHidden: {
         fontSize: 24,
         color: '#FFFFFF'
+    },
+    card: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        elevation: 4
     }
 });
 export default HomeScreen;

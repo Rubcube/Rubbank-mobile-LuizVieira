@@ -42,10 +42,13 @@ const Transactions = ({ params, }: { params: Params }) => {
     const fetchData = async () => {
         await resetList();
 
+        const scheduleStartDate = DateTime.now().toJSDate();
+        const scheduleEndDate = DateTime.now().plus({ days: 90 }).toJSDate();
+
         const response = await getTransactions({
             accountId: filters.accountId,
-            endDate: params.schedule? filters.scheduleEndDate: filters.endDate,
-            startDate: params.schedule? filters.scheduleStartDate: filters.startDate,
+            endDate: params.schedule? scheduleEndDate: filters.endDate,
+            startDate: params.schedule? scheduleStartDate: filters.startDate,
             page: 1,
             schedule: params.schedule,
             order: filters.order

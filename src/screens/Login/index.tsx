@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 
 import logo from '../../assets/logo.png';
@@ -16,6 +16,10 @@ import { LoadingScreen } from '../../components/LoadingScreen';
 import { StackTypes } from '../../routes/stackNavigation';
 import { AccountsContext } from '../../services/AccountsContext';
 import { AuthContext } from '../../services/AuthContext';
+
+interface routeParams {
+  expired: boolean
+}
 
 function Login(): JSX.Element {
   const navigation = useNavigation<StackTypes>();
@@ -53,10 +57,16 @@ function Login(): JSX.Element {
       }
     );
 
+    if (auth === '-1') {
+      setErrVisibility(true);
+      setErrorMsg('Sua sessão foi expirada! Por favor faça seu login novamente')
+    }
+
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
+
   }, []);
 
   useEffect(() => {
@@ -74,7 +84,7 @@ function Login(): JSX.Element {
   }
 
   const onSubmit = async (data: any) => {
-    if (!data.cpf || !data.password){
+    if (!data.cpf || !data.password) {
       setPasswordIsNull(!data.password);
       setCpfIsNull(!data.cpf);
       setCpfRequireMsg('Campo Obrigatório');
@@ -90,7 +100,7 @@ function Login(): JSX.Element {
 
       setAuth(res.token ? res.token : '');
 
-      if(res.accounts) setAccounts(res.accounts);
+      if (res.accounts) setAccounts(res.accounts);
       navigation.reset({
         index: 0,
         routes: [{ name: 'Accounts' }],
@@ -151,7 +161,7 @@ function Login(): JSX.Element {
         />
 
         <TouchableOpacity><Text style={styles.anchorText}>Esqueceu a sua senha?</Text></TouchableOpacity>
-        <View style={styles.actions}>  
+        <View style={styles.actions}>
           <TouchableOpacity onPress={handleSubmit(onSubmit)}>
             <DefaultButton text='CONFIRMAR' color='#1D1C3E' />
           </TouchableOpacity>
@@ -173,7 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     gap: 30,
     padding: 40
-  }, 
+  },
   contentMin: {
     flex: 1,
     top: 0,

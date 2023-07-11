@@ -16,8 +16,8 @@ import StackPerfilComponent from './stackPerfil';
 import { AuthContext } from '../services/AuthContext';
 import Extrato from '../screens/Extrato/Index';
 import DetailedTransfer from '../screens/Extrato/detailedTransfer';
-import InitialStepTransfer from '../screens/Transfer';
 import StackTransferComponent from './stackTransfer';
+import StackSuportComponent from './stackSuport';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +30,7 @@ type StackNavigation = {
   Perfil: undefined;
   Extrato: undefined;
   Transfer: undefined;
+  Suport: undefined;
   DetailedTransfer: {id: string};
 }
 
@@ -39,7 +40,8 @@ export default function StackComponent(): JSX.Element {
   const [activeAccount, setActiveAccount] = useState<AccountsDTO>({
     account_number: -1,
     agency: '',
-    id: ''
+    id: '',
+    status: ''
   });
   const [auth, setAuth] = useState('');
   return (
@@ -57,6 +59,7 @@ export default function StackComponent(): JSX.Element {
               <Stack.Screen name='Extrato' component={Extrato} options={{ animation: 'default' }} />
               <Stack.Screen name='Transfer' component={StackTransferComponent} options={{ animation: 'default' }} />
               <Stack.Screen name='DetailedTransfer' component={DetailedTransfer} options={{ animation: 'default' }} />
+              <Stack.Screen name='Suport' component={StackSuportComponent} options={{ animation: 'default' }} />
             </Stack.Navigator>
           </NavigationContainer>
         </ActiveAccountContext.Provider>

@@ -145,7 +145,7 @@ const DetailedTransfer = () => {
                             </ViewShot>
                             <View style={{ paddingHorizontal: 30 }}>
                                 <TouchableOpacity style={styles.button} onPress={captureView}>
-                                    <Text style={{ fontSize: 16, color: '#383838', fontWeight: '500' }}>COMPARTILHAR DADOS</Text>
+                                    <Text style={{ fontSize: 16, color: '#383838', fontWeight: '500' }}>COMPARTILHAR</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

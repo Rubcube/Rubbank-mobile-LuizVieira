@@ -5,7 +5,6 @@ import DefaultHeader from '../../components/DefaultHeader';
 import wave from '../../assets/wave.png'
 import { useContext, useEffect, useState } from 'react';
 import DefaultButton from '../../components/DefaultButton';
-import { StackTransferTypes } from '../../routes/stackTransfer';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import { regex } from '../../utils/consts';
 import { postTransfer } from './services/transferAPI';
@@ -16,6 +15,7 @@ import { LoadingScreen } from '../../components/LoadingScreen';
 import SuccessModal from '../../components/SuccessModal';
 import { StackTypes } from '../../routes/stackNavigation';
 import { DateTime } from 'luxon';
+import ErrorModal from '../../components/ErrorModal';
 
 interface routeParams {
     accountReceiver: string
@@ -25,7 +25,7 @@ interface routeParams {
 
 export default function InitialStepTransfer(): JSX.Element {
     const navigation = useNavigation<StackTypes>();
-
+    const [count, setCount] = useState(0);
     const [auth, setAuth] = useContext(AuthContext);
     const [activeAccount, setActiveAccount] = useContext(ActiveAccountContext);
 
@@ -46,12 +46,18 @@ export default function InitialStepTransfer(): JSX.Element {
         else setIsFormValid(false)
     }, [value])
 
+    useEffect(() => {
+        if (count >= 3) {
+            setActiveAccount({...activeAccount, status: 'BLOCKED'})
+        }
+    }, [count])
+
     const onSubmit = async () => {
         setLoadingVisibility(true);
         const response = await postTransfer(
-            auth, 
-            activeAccount.id, 
-            transfer.accountReceiver, 
+            auth,
+            activeAccount.id,
+            transfer.accountReceiver,
             transfer.value, DateTime.fromFormat(transfer.scheduleDate, 'dd/MM/yyyy').toFormat('yyyy-MM-dd'),
             value);
         setLoadingVisibility(false);
@@ -65,17 +71,26 @@ export default function InitialStepTransfer(): JSX.Element {
         } else if (response.status === 200) {
             setTransferId(response.data);
             setSuccessVisibility(true);
+
+        } else {
+            setModalError(response.data)
         }
     }
 
     const [error, setError] = useState(false);
-    const [count, setCount] = useState(0);
 
     const [successVisibility, setSuccessVisibility] = useState(false);
     const [loadingVisibility, setLoadingVisibility] = useState(false);
+
+    const [modalError, setModalError] = useState('');
+
     const [transferId, setTransferId] = useState('');
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <ErrorModal
+                visibility={modalError !== ''}
+                errorMsg={modalError}
+                setVisibility={() => { setModalError('') }} />
             <SuccessModal
                 btnText="ENVIAR COMPROVANTE"
                 successTitle="Sua transferência foi enviada com sucesso"
@@ -84,9 +99,9 @@ export default function InitialStepTransfer(): JSX.Element {
                     navigation.reset({
                         index: 0,
                         routes: [
-                            {name: 'Accounts'},
-                            {name: 'HomeScreen'},
-                            {name: 'DetailedTransfer', params: {id: transferId}}
+                            { name: 'Accounts' },
+                            { name: 'HomeScreen' },
+                            { name: 'DetailedTransfer', params: { id: transferId } }
                         ]
                     })
                 }}

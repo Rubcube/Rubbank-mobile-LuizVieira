@@ -1,6 +1,8 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components";
 import DefaultButton from "../../components/DefaultButton";
+import { useNavigation } from "@react-navigation/native";
+import { StackTypes } from "../../routes/stackNavigation";
 
 const ErrorModalContainer = styled(View)`
     flex: 1;
@@ -26,9 +28,12 @@ interface Props {
     setVisibility: () => void
     count: number
     isBlocked: boolean
+    home?: boolean
 }
 
-const WrongPassModal = ({ visibility, setVisibility, count, isBlocked }: Props) => {
+const WrongPassModal = ({ visibility, setVisibility, count, isBlocked, home }: Props) => {
+    const navigation = useNavigation<StackTypes>();
+
     return (
         <Modal visible={visibility} transparent={true} onRequestClose={setVisibility}>
             <ErrorModalContainer>
@@ -43,7 +48,16 @@ const WrongPassModal = ({ visibility, setVisibility, count, isBlocked }: Props) 
                                     Você tem mais <Text style={{ fontWeight: '700' }}>{3 - count} tentativas</Text>. Verifique se digitou sua senha corretamente.
                                 </Text>
                             </View>
-                            <TouchableOpacity style={{ alignSelf: 'center' }}>
+                            <TouchableOpacity style={{ alignSelf: 'center' }} onPress={() => {
+                                setVisibility(); navigation.reset({
+                                    index: 0,
+                                    routes: [
+                                        { name: 'Accounts' },
+                                        { name: 'HomeScreen' },
+                                        { name: 'Suport' }
+                                    ]
+                                })
+                            }}>
                                 <DefaultButton color="#1D1C3E" text="FALAR COM SUPORTE" />
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.button} onPress={setVisibility}>
@@ -60,10 +74,27 @@ const WrongPassModal = ({ visibility, setVisibility, count, isBlocked }: Props) 
                                     Por motivos de segurança a sua conta foi bloqueada. Por favor, entre em contato com o nosso suporte para realizar o desbloqueio.
                                 </Text>
                             </View>
-                            <TouchableOpacity style={{ alignSelf: 'center' }}>
+                            <TouchableOpacity style={{ alignSelf: 'center' }} onPress={() => {
+                                setVisibility(); navigation.reset({
+                                    index: 0,
+                                    routes: [
+                                        { name: 'Accounts' },
+                                        { name: 'HomeScreen' },
+                                        { name: 'Suport' }
+                                    ]
+                                })
+                            }}>
                                 <DefaultButton color="#1D1C3E" text="FALAR COM SUPORTE" />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.button} onPress={() => { }}>
+                            <TouchableOpacity style={styles.button} onPress={() => {
+                                setVisibility(); if(!home) navigation.reset({
+                                    index: 0,
+                                    routes: [
+                                        { name: 'Accounts' },
+                                        { name: 'HomeScreen' },
+                                    ]
+                                })
+                            }}>
                                 <Text style={{ fontSize: 16, color: '#383838', fontWeight: '500' }}>VOLTAR PARA O INÍCIO</Text>
                             </TouchableOpacity>
                         </>

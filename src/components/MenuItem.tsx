@@ -17,8 +17,8 @@ interface Props {
 
 const MenuItem = (props: Props) => {
     return (
-        <Card style={{ elevation: 2 }}>
-            <Image source={props.image} />
+        <Card>
+            <Image source={props.image} resizeMode="contain" style={{width: 24, height: 24}}/>
             <Text>{props.title}</Text>
         </Card>
     );

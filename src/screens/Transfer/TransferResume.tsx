@@ -85,7 +85,8 @@ export default function TransferResume(): JSX.Element {
         text = text.replace(',', '.');
 
         const value: number = parseFloat(text);
-        if (Number.isNaN(value) || value <= 0) setErrorMsg({ ...errorMsg, value: 'Digite um valor válido' })
+        if (Number.isNaN(value) || value <= 0) setErrorMsg({ ...errorMsg, value: 'Digite um valor válido' });
+        else if (value > parseFloat(balance) ) setErrorMsg({...errorMsg, value: 'Saldo insuficiente'});
         else setErrorMsg({ ...errorMsg, value: '' });
         setValue('value', text);
         setField(text);

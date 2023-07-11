@@ -19,7 +19,8 @@ const Accounts = () => {
                             <AccountCard
                                 id={item.id}
                                 agency={item.agency}
-                                account_number={item.account_number} />}
+                                account_number={item.account_number}
+                                status={item.status} />}
                         keyExtractor={item => item.agency}
                     />
                 </Container>
